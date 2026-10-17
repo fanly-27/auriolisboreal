@@ -1,20 +1,27 @@
-# auriolisboreal
-Starter Forge 1.12.2 mod project for Auriolis Boreal
+# Auriolis Boreal - Starter mod (extended)
 
-Este repositorio contiene un scaffold mínimo para que puedas empezar a programar el código fuente del mod sin necesidad de configurar todavía las herramientas de compilación.
+He añadido una plantilla mínima lista para que empieces a programar funcionalidad del mod sin necesidad inmediata de herramientas de compilación.
 
-Qué he añadido (mínimo para programar):
+Archivos añadidos:
+- src/main/java/com/auriolisboreal/blocks/ExampleBlock.java — ejemplo de bloque.
+- src/main/java/com/auriolisboreal/items/ExampleItem.java — ejemplo de item.
+- src/main/java/com/auriolisboreal/ModBlocks.java — registro de bloques.
+- src/main/java/com/auriolisboreal/ModItems.java — registro de items.
+- src/main/java/com/auriolisboreal/proxy/CommonProxy.java — proxy común.
+- src/main/java/com/auriolisboreal/proxy/ClientProxy.java — proxy cliente (registra modelos).
+- src/main/java/com/auriolisboreal/AuriolisBorealMod.java — clase principal del mod (actualizada para inicializar registros y proxy).
+- src/main/resources/assets/auriolisboreal/lang/en_US.lang — nombres básicos.
+- src/main/resources/assets/auriolisboreal/blockstates/example_block.json
+- src/main/resources/assets/auriolisboreal/models/block/example_block.json
+- src/main/resources/assets/auriolisboreal/models/item/example_block.json
+- src/main/resources/assets/auriolisboreal/models/item/example_item.json
 
-- src/main/java/com/auriolisboreal/AuriolisBorealMod.java — Clase principal anotada con @Mod (Forge 1.12.2).
-- src/main/resources/mcmod.info — Metadatos del mod usados en Forge 1.12.2.
+Notas importantes:
+- Las texturas (PNG) NO están incluidas. Pon las imágenes aquí cuando puedas:
+  - src/main/resources/assets/auriolisboreal/textures/blocks/example_block.png
+  - src/main/resources/assets/auriolisboreal/textures/items/example_item.png
 
-Notas sobre compilación y herramientas (opcional):
+Cómo continuar sin compilar:
+- Puedes editar y añadir código en src/ normalmente desde la web o desde un editor. Cuando tengas una PC con Java/Gradle/Forge MDK, te puedo añadir build.gradle y el wrapper para compilar.
 
-- Para compilar y generar el .jar necesitarás el Forge MDK para 1.12.2 y Gradle (o usar el wrapper). Eso requiere descargar el MDK y ejecutar los tasks de Gradle en una máquina con Java instalado.
-- Mientras tanto puedes editar el código fuente en la carpeta src/ y empujar cambios al repositorio. Cuando tengas acceso a una PC y al MDK, te puedo añadir los archivos de build (build.gradle, gradle/wrapper) y configuración necesaria para compilar.
-
-Siguientes pasos que puedo hacer ahora:
-- Añadir un ejemplo de bloque/item y sus registros (si quieres empezar a programar funciones concretas).
-- Añadir archivos de build.gradle y gradle wrapper (si confirmas que quieres preparar el proyecto para compilar desde GitHub Actions o localmente).
-
-Dime qué prefieres y continúo.
+Si quieres que prepare también el build.gradle y GitHub Actions para compilar automáticamente (generar jar en cada push), dímelo y lo agrego.
