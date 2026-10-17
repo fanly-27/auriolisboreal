@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        jcenter()
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        mavenCentral()
+        maven { url = 'https://maven.minecraftforge.net' }
         maven { url = 'https://repo.spongepowered.org/maven' }
         maven { url = 'https://plugins.gradle.org/m2' }
     }
@@ -34,7 +34,8 @@ minecraft {
 jar.manifest.attributes(
         'FMLCorePluginContainsFMLMod': false,
         'ForceLoadAsMod': true,
-        'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker'
+        'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+        'MixinConfigs': 'mixins.auriolisboreal.json'
 )
 
 repositories {
