@@ -1,4 +1,2 @@
-tile.example_block.name=Example Block
-item.example_item.name=Example Item
 tile.arboris_aura.name=Arboris Aura
 message.auriolisboreal.arboris_aura.debug=Arboris Aura | Phase %s | Nutrition %s/%s | Progress %s | Malnourished: %s
