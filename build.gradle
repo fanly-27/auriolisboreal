@@ -2,17 +2,14 @@ buildscript {
     repositories {
         mavenCentral()
         maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://repo.spongepowered.org/maven' }
         maven { url = 'https://plugins.gradle.org/m2' }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 version = '1.0'
@@ -33,24 +30,8 @@ minecraft {
 
 jar.manifest.attributes(
         'FMLCorePluginContainsFMLMod': false,
-        'ForceLoadAsMod': true,
-        'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-        'MixinConfigs': 'mixins.auriolisboreal.json'
+        'ForceLoadAsMod': true
 )
-
-repositories {
-    mavenCentral()
-    maven { url = 'https://repo.spongepowered.org/maven' }
-}
-
-dependencies {
-    // Mixin runtime (deobf handled by FG)
-    compile 'org.spongepowered:mixin:0.8.2'
-}
-
-mixin {
-    add sourceSets.main, 'mixins.auriolisboreal.refmap.json'
-}
 
 shadowJar {
     exclude 'LICENSE.txt'

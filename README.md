@@ -1,8 +1,8 @@
 # Auriolis Boreal
 
-Plantilla de mod para **Minecraft 1.12.2**, **Forge 14.23.5.2847** y **Mixin
-0.8.2**. Aún no añade contenido propio al juego; incluye ejemplos básicos de un
-bloque y un objeto.
+Plantilla de mod para **Minecraft 1.12.2** y **Forge 14.23.5.2847**. Aún no
+añade contenido propio al juego; incluye ejemplos básicos de un bloque y un
+objeto.
 
 ## Compilar automáticamente
 
@@ -41,13 +41,12 @@ de desarrollo, usa `./gradlew runClient` (o `gradlew.bat runClient` en Windows).
 ForgeGradle 2.3 para Minecraft 1.12.2 no funciona correctamente con Java moderno:
 usa Java 8 tanto para compilar como para ejecutar el cliente.
 
-## Mixin
+## Mixin (pausado)
 
-MixinGradle y la dependencia de Mixin se conservan. La configuración está en
-`src/main/resources/mixins.auriolisboreal.json` y el manifiesto del JAR la declara.
-Todavía no hay mixins implementados. Los nuevos mixins deben estar en el paquete
-`com.auriolisboreal.mixins` y añadirse a la lista correspondiente (`mixins`,
-`client` o `server`) del JSON.
+Mixin y MixinGradle están desactivados y no forman parte de la compilación actual.
+Se podrán volver a integrar cuando el mod necesite mixins; habrá que añadir la
+dependencia y el plugin, crear su configuración y declarar el tweaker en el
+manifiesto del JAR.
 
 Para bloques, objetos, recetas y eventos normales de Forge, generalmente no hace
 falta escribir mixins.
@@ -56,7 +55,6 @@ falta escribir mixins.
 
 - Código Java: `src/main/java/com/auriolisboreal/`
 - Modelos, blockstates e idioma: `src/main/resources/assets/auriolisboreal/`
-- Configuración de Mixin: `src/main/resources/mixins.auriolisboreal.json`
 
 Las texturas de ejemplo aún no están incluidas. Se esperan en:
 

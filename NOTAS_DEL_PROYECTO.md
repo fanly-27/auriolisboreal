@@ -11,15 +11,15 @@ cambios de forma automática.
 
 - Minecraft 1.12.2, Forge 14.23.5.2847 y Java 8.
 - ForgeGradle 2.3 y Gradle Wrapper 4.10.3 (`gradlew` / `gradlew.bat`).
-- Mixin 0.8.2 y MixinGradle se mantienen. La configuración está en
-  `src/main/resources/mixins.auriolisboreal.json`; aún no hay mixins escritos.
+- Mixin y MixinGradle están pausados: no se incluyen como dependencias, plugins
+  ni configuración del manifiesto. Reintegrarlos cuando el mod necesite mixins.
 - GitHub Actions está configurado en `.github/workflows/build.yml` para compilar
   con Java 8 y publicar el JAR como artefacto de la ejecución.
 - Las instrucciones de compilación y descarga están en `README.md`.
 
 ## Compilación y límites verificados
 
-- `./gradlew tasks` carga las tareas de Forge y Mixin correctamente.
+- La compilación actual no carga ni depende de Mixin.
 - No se pudo verificar el build completo en el entorno de desarrollo actual:
   tiene Java 25, y Forge 1.12.2 necesita Java 8. El build local falló al usar la
   API `Pack200`, retirada de Java moderno.
