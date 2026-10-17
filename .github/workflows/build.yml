@@ -21,6 +21,17 @@ jobs:
           distribution: temurin
           java-version: '8'
 
+      - name: Restore Gradle wrapper
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-4.10.3-bin.zip
+          unzip -q gradle-4.10.3-bin.zip
+          mkdir -p "$RUNNER_TEMP/wrapgen"
+          cd "$RUNNER_TEMP/wrapgen"
+          "$GITHUB_WORKSPACE/gradle-4.10.3/bin/gradle" wrapper --gradle-version 4.10.3
+          mkdir -p "$GITHUB_WORKSPACE/gradle/wrapper"
+          cp gradle/wrapper/gradle-wrapper.jar "$GITHUB_WORKSPACE/gradle/wrapper/"
+          chmod +x "$GITHUB_WORKSPACE/gradlew"
+
       - name: Build mod
         run: ./gradlew --no-daemon build
 
