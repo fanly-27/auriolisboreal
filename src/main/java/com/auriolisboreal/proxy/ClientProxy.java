@@ -18,6 +18,9 @@ public class ClientProxy {
         Item blockItem = Item.getItemFromBlock(ModBlocks.example_block);
         ModelLoader.setCustomModelResourceLocation(blockItem, 0, new ModelResourceLocation(blockItem.getRegistryName(), "inventory"));
 
+        Item auraItem = Item.getItemFromBlock(ModBlocks.arboris_aura);
+        ModelLoader.setCustomModelResourceLocation(auraItem, 0, new ModelResourceLocation(auraItem.getRegistryName(), "inventory"));
+
         Item exampleItem = ModItems.example_item;
         ModelLoader.setCustomModelResourceLocation(exampleItem, 0, new ModelResourceLocation(exampleItem.getRegistryName(), "inventory"));
     }

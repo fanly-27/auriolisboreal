@@ -19,6 +19,11 @@ public class ModItems {
         itemBlock.setRegistryName(block.getRegistryName());
         event.getRegistry().register(itemBlock);
 
+        Block auraBlock = ModBlocks.arboris_aura;
+        ItemBlock auraItemBlock = new ItemBlock(auraBlock);
+        auraItemBlock.setRegistryName(auraBlock.getRegistryName());
+        event.getRegistry().register(auraItemBlock);
+
         example_item = new ExampleItem();
         event.getRegistry().register(example_item);
     }
