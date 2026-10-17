@@ -8,7 +8,7 @@ import com.auriolisboreal.AuriolisBorealMod;
 public class ExampleBlock extends Block {
     public ExampleBlock() {
         super(Material.WOOD);
-        setUnlocalizedName("example_block");
+        setTranslationKey("example_block");
         setRegistryName(AuriolisBorealMod.MODID, "example_block");
         setHardness(2.0F);
         setResistance(5.0F);
