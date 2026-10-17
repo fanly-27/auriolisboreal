@@ -2,15 +2,17 @@ package com.auriolisboreal;
 
 import com.auriolisboreal.blocks.ExampleBlock;
 import net.minecraft.block.Block;
-import net.minecraft.item.ItemBlock;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+@Mod.EventBusSubscriber(modid = AuriolisBorealMod.MODID)
 public class ModBlocks {
     public static Block example_block;
 
-    public static void init() {
+    @SubscribeEvent
+    public static void registerBlocks(RegistryEvent.Register<Block> event) {
         example_block = new ExampleBlock();
-        GameRegistry.register(example_block);
-        GameRegistry.register(new ItemBlock(example_block).setRegistryName(example_block.getRegistryName()));
+        event.getRegistry().register(example_block);
     }
 }
