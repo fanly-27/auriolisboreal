@@ -1,0 +1,15 @@
+[
+  {
+    "modid": "auriolisboreal",
+    "name": "Auriolis Boreal",
+    "description": "A starter mod for Auriolis Boreal (Forge 1.12.2).",
+    "version": "1.0",
+    "authorList": ["fanly-27"],
+    "credits": "Created by fanly-27",
+    "logoFile": "",
+    "screenshots": [],
+    "url": "",
+    "updateUrl": "",
+    "dependencies": []
+  }
+]
