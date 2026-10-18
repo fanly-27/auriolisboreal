@@ -124,4 +124,9 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
             }
         }
     }
+
+        @Override
+    public boolean shouldRefresh(net.minecraft.world.World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+        return oldState.getBlock() != newState.getBlock();
+    }
 }
