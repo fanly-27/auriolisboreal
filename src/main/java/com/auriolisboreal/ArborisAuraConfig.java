@@ -33,12 +33,12 @@ public final class ArborisAuraConfig {
                     "Maximum nutrition stored at this phase."
             );
             CONSUMPTION_PER_DAY[phase] = config.get(
-                    "consumption_per_day",
                     category,
+                    "consumption_per_day",
                     DEFAULT_CONSUMPTION[phase],
+                    "Nutrition consumed per Minecraft day.",
                     0.0,
-                    1000000.0,
-                    "Nutrition consumed per Minecraft day."
+                    1000000.0
             ).getDouble();
             COCOON_SLOTS[phase] = config.getInt(
                     "cocoon_slots",

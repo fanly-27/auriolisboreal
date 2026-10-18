@@ -26,7 +26,7 @@ public class ArborisAuraBlock extends Block {
 
     public ArborisAuraBlock() {
         super(Material.WOOD);
-        setTranslationKey("arboris_aura");
+        setUnlocalizedName("arboris_aura");
         setRegistryName(new ResourceLocation(AuriolisBorealMod.MODID, "arboris_aura"));
         setHardness(2.0F);
         setResistance(5.0F);
