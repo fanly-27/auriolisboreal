@@ -20,11 +20,22 @@ cambios de forma automática.
 ## Compilación y límites verificados
 
 - La compilación actual no carga ni depende de Mixin.
-- No se pudo verificar el build completo en el entorno de desarrollo actual:
-  tiene Java 25, y Forge 1.12.2 necesita Java 8. El build local falló al usar la
-  API `Pack200`, retirada de Java moderno.
-- El workflow de GitHub usa Java 8; hay que subir los cambios al repositorio y
-  comprobar una ejecución de Actions para confirmar el JAR.
+- El terminal del entorno usa Java 8 (`1.8.0_504`). El log de la extensión
+  Gradle de VS Code mostró un proceso iniciado con su JRE 25; con Gradle 4.10.3
+  falló el acceso a `URLClassLoader.addURL`. Para compilar, usar el wrapper desde
+  el terminal con JDK 8.
+- `gradle.properties` establece `org.gradle.jvmargs=-Xmx2G`, lo cual causa que
+  `--no-daemon` use un proceso temporal. Para evitarlo sin cambiar ese archivo:
+
+  ```sh
+  export JAVA_HOME=/ruta/al/jdk8
+  export PATH="$JAVA_HOME/bin:$PATH"
+  ./gradlew --no-daemon -Dorg.gradle.jvmargs= compileJava
+  ```
+
+- El comando anterior terminó con `BUILD SUCCESSFUL`. Se verificó `compileJava`,
+  no el build completo ni el JAR sombreado. Revisar una ejecución de Actions
+  para confirmar el artefacto.
 - Las texturas PNG de los ejemplos no están incluidas.
 
 ## Al continuar
