@@ -11,9 +11,14 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class ModItems {
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
-        Block auraBlock = ModBlocks.arboris_aura;
-        ItemBlock auraItemBlock = new ItemBlock(auraBlock);
-        auraItemBlock.setRegistryName(auraBlock.getRegistryName());
-        event.getRegistry().register(auraItemBlock);
+        registerBlockItem(event, ModBlocks.arboris_aura);
+        registerBlockItem(event, ModBlocks.arboris_aura_trunk);
+        registerBlockItem(event, ModBlocks.arboris_aura_leaves);
+    }
+
+    private static void registerBlockItem(RegistryEvent.Register<Item> event, Block block) {
+        ItemBlock itemBlock = new ItemBlock(block);
+        itemBlock.setRegistryName(block.getRegistryName());
+        event.getRegistry().register(itemBlock);
     }
 }
