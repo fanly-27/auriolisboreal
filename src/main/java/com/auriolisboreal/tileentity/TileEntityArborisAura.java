@@ -70,7 +70,7 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
     }
 
     public double getNutritionCapacity() {
-        return ArborisAuraConfig.getCapacity(phase);
+        return phase >= 10 ? 0L : 200L * (phase + 1);
     }
 
     public long getProgressTicks() {
