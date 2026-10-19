@@ -33,7 +33,7 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
         }
 
         if (phase > 0) {
-            double consumed = ArborisAuraConfig.getConsumptionPerDay(phase) * 20.0 / 240.0;
+            double consumed = ArborisAuraConfig.getConsumptionPerDay(phase) * 20.0 / 24.0;
             nutrition = Math.max(0.0, nutrition - consumed);
             malnourished = nutrition <= 0.0;
         }
@@ -82,7 +82,7 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
     }
 
     public long getTicksForNextPhase() {
-        return phase >= 10 ? 0L : 24000L * (phase + 1);
+        return phase >= 10 ? 0L : 24L * (phase + 1);
     }
 
     @Override
