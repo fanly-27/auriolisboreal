@@ -1,0 +1,15 @@
+{
+  "variants": {
+    "phase=0": { "model": "auriolisboreal:arboris_aura" },
+    "phase=1": { "model": "auriolisboreal:arboris_aura" },
+    "phase=2": { "model": "auriolisboreal:arboris_aura" },
+    "phase=3": { "model": "auriolisboreal:arboris_aura" },
+    "phase=4": { "model": "auriolisboreal:arboris_aura" },
+    "phase=5": { "model": "auriolisboreal:arboris_aura" },
+    "phase=6": { "model": "auriolisboreal:arboris_aura" },
+    "phase=7": { "model": "auriolisboreal:arboris_aura" },
+    "phase=8": { "model": "auriolisboreal:arboris_aura" },
+    "phase=9": { "model": "auriolisboreal:arboris_aura" },
+    "phase=10": { "model": "auriolisboreal:arboris_aura" }
+  }
+}

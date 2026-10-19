@@ -1,0 +1,4 @@
+tile.arboris_aura.name=Arboris Aura
+message.auriolisboreal.arboris_aura.debug=Arboris Aura | Phase %s | Nutrition %s/%s | Progress %s | Malnourished: %s
+tile.arboris_aura_trunk.name=Arboris Aura Trunk
+tile.arboris_aura_leaves.name=Arboris Aura Leaves
