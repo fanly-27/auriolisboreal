@@ -32,6 +32,7 @@ public class ArborisAuraBlock extends Block {
         setHardness(2.0F);
         setResistance(5.0F);
         setSoundType(SoundType.WOOD);
+        setHarvestLevel("axe", 0);
         setDefaultState(blockState.getBaseState().withProperty(PHASE, 0));
     }
 
