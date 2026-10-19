@@ -1,5 +1,6 @@
 package com.auriolisboreal.blocks;
 
+import net.minecraft.world.IBlockAccess;
 import com.auriolisboreal.AuriolisBorealMod;
 import com.auriolisboreal.tileentity.TileEntityArborisAura;
 import net.minecraft.block.Block;
@@ -111,5 +112,14 @@ public class ArborisAuraBlock extends Block {
             }
         }
         return true;
+    }
+        @Override
+    public int getFlammability(IBlockAccess world, BlockPos pos, EnumFacing face) {
+        return 5;
+    }
+
+    @Override
+    public int getFireSpreadSpeed(IBlockAccess world, BlockPos pos, EnumFacing face) {
+        return 5;
     }
 }
