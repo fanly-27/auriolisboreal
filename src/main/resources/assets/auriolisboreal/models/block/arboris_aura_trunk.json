@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_column",
+  "textures": {
+    "end": "auriolisboreal:blocks/arboris_aura_top",
+    "side": "auriolisboreal:blocks/arboris_aura_side"
+  }
+}
