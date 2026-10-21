@@ -2,6 +2,7 @@ package com.auriolisboreal.blocks;
 
 import com.auriolisboreal.ArborisAuraConfig;
 import com.auriolisboreal.AuriolisBorealMod;
+import com.auriolisboreal.MicroBiome;
 import com.auriolisboreal.tileentity.TileEntityArborisAura;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -10,6 +11,7 @@ import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -18,6 +20,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
@@ -64,6 +67,24 @@ public class ArborisAuraBlock extends Block {
     }
 
     @Override
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+        if (!world.isRemote && placer instanceof EntityPlayer) {
+            TileEntity tileEntity = world.getTileEntity(pos);
+            if (tileEntity instanceof TileEntityArborisAura) {
+                ((TileEntityArborisAura) tileEntity).setOwner((EntityPlayer) placer);
+            }
+        }
+    }
+
+    @Override
+    public void breakBlock(World world, BlockPos pos, IBlockState state) {
+        if (!world.isRemote) {
+            MicroBiome.revert(world, pos);
+        }
+        super.breakBlock(world, pos, state);
+    }
+
+    @Override
     public boolean onBlockActivated(
             World world,
             BlockPos pos,
@@ -78,7 +99,8 @@ public class ArborisAuraBlock extends Block {
         ItemStack heldItem = player.getHeldItem(hand);
         boolean debugStick = heldItem.getItem() == Items.STICK;
         boolean boneMeal = heldItem.getItem() == Items.DYE && heldItem.getMetadata() == 15;
-        if (!debugStick && !boneMeal) {
+        boolean totem = heldItem.getItem() == Items.TOTEM_OF_UNDYING;
+        if (!debugStick && !boneMeal && !totem) {
             return false;
         }
 
@@ -92,6 +114,13 @@ public class ArborisAuraBlock extends Block {
         }
 
         TileEntityArborisAura aura = (TileEntityArborisAura) tileEntity;
+        if (totem) {
+            String owner = aura.getOwnerName().isEmpty() ? "sin due\u00f1o" : aura.getOwnerName();
+            player.sendMessage(new TextComponentString(
+                    "Arboris Aura - fase " + aura.getPhase() + "/10 - due\u00f1o: " + owner));
+            return true;
+        }
+
         if (debugStick) {
             int phase = aura.getPhase();
             long targetTicks = aura.getTicksForNextPhase();
