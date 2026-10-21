@@ -15,12 +15,27 @@ public final class ArborisAuraConfig {
     private static final int[] COCOON_SLOTS = DEFAULT_COCOON_SLOTS.clone();
     private static final int[] DRYAD_SLOTS = DEFAULT_DRYAD_SLOTS.clone();
 
+    // Dureza y fuego del tronco y del bloque central (valores por defecto = piedra / quema lenta)
+    private static float trunkHardness = 1.5F;
+    private static float trunkResistance = 10.0F;
+    private static int fireEncouragement = 1;
+    private static int fireFlammability = 1;
+
     private ArborisAuraConfig() {
     }
 
     public static void load(File file) {
         Configuration config = new Configuration(file);
         config.load();
+
+        trunkHardness = config.getFloat("hardness", "trunk", 1.5F, 0.0F, 2000.0F,
+                "Block hardness of the trunk and the central block. Stone = 1.5, oak log = 2.0, obsidian = 50.");
+        trunkResistance = config.getFloat("resistance", "trunk", 10.0F, 0.0F, 6000000.0F,
+                "Explosion resistance. Stone = 10, oak log = 2.");
+        fireEncouragement = config.getInt("fire_encouragement", "trunk", 1, 0, 300,
+                "How easily fire catches. Oak log = 5. 0 = never.");
+        fireFlammability = config.getInt("fire_flammability", "trunk", 1, 0, 300,
+                "How fast it burns away. Oak log = 5. 0 = never.");
 
         for (int phase = 0; phase <= 10; phase++) {
             String category = "phases.phase_" + phase;
@@ -75,5 +90,21 @@ public final class ArborisAuraConfig {
 
     public static int getDryadSlots(int phase) {
         return DRYAD_SLOTS[phase];
+    }
+
+    public static float getTrunkHardness() {
+        return trunkHardness;
+    }
+
+    public static float getTrunkResistance() {
+        return trunkResistance;
+    }
+
+    public static int getFireEncouragement() {
+        return fireEncouragement;
+    }
+
+    public static int getFireFlammability() {
+        return fireFlammability;
     }
 }
