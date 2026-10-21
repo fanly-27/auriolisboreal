@@ -1,6 +1,7 @@
 package com.auriolisboreal;
 
 import com.auriolisboreal.tileentity.TileEntityArborisAura;
+import com.auriolisboreal.tileentity.TileEntityArborisSapling;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -18,6 +19,10 @@ public class AuriolisBorealMod {
         GameRegistry.registerTileEntity(
                 TileEntityArborisAura.class,
                 new ResourceLocation(MODID, "arboris_aura")
+        );
+        GameRegistry.registerTileEntity(
+                TileEntityArborisSapling.class,
+                new ResourceLocation(MODID, "arboris_aura_sapling")
         );
     }
 }
