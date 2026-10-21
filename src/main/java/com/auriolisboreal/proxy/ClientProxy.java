@@ -18,6 +18,9 @@ public class ClientProxy {
         registerItemModel(ModBlocks.arboris_aura);
         registerItemModel(ModBlocks.arboris_aura_trunk);
         registerItemModel(ModBlocks.arboris_aura_leaves);
+        registerItemModel(ModBlocks.arboris_aura_sapling);
+        registerItemModel(ModBlocks.arboris_aura_grass);
+        registerItemModel(ModBlocks.arboris_aura_tallgrass);
     }
 
     private static void registerItemModel(Block block) {
