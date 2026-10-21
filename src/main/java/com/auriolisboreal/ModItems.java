@@ -14,6 +14,9 @@ public class ModItems {
         registerBlockItem(event, ModBlocks.arboris_aura);
         registerBlockItem(event, ModBlocks.arboris_aura_trunk);
         registerBlockItem(event, ModBlocks.arboris_aura_leaves);
+        registerBlockItem(event, ModBlocks.arboris_aura_sapling);
+        registerBlockItem(event, ModBlocks.arboris_aura_grass);
+        registerBlockItem(event, ModBlocks.arboris_aura_tallgrass);
     }
 
     private static void registerBlockItem(RegistryEvent.Register<Item> event, Block block) {
