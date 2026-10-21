@@ -123,4 +123,14 @@ public class ArborisAuraBlock extends Block {
     public int getFireSpreadSpeed(IBlockAccess world, BlockPos pos, EnumFacing face) {
         return ArborisAuraConfig.getFireEncouragement();
     }
+
+    @Override
+    public float getBlockHardness(IBlockState blockState, World worldIn, BlockPos pos) {
+    return ArborisAuraConfig.getTrunkHardness();
+    }
+
+    @Override
+    public float getExplosionResistance(World world, BlockPos pos, @Nullable Entity exploder, Explosion explosion) {
+    return ArborisAuraConfig.getTrunkResistance();
+    }
 }
