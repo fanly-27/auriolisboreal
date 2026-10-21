@@ -1,6 +1,6 @@
 package com.auriolisboreal.blocks;
 
-import net.minecraft.world.IBlockAccess;
+import com.auriolisboreal.ArborisAuraConfig;
 import com.auriolisboreal.AuriolisBorealMod;
 import com.auriolisboreal.tileentity.TileEntityArborisAura;
 import net.minecraft.block.Block;
@@ -9,6 +9,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -18,8 +19,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.Explosion;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.Locale;
 
 public class ArborisAuraBlock extends Block {
@@ -29,8 +33,6 @@ public class ArborisAuraBlock extends Block {
         super(Material.WOOD);
         setTranslationKey("arboris_aura");
         setRegistryName(new ResourceLocation(AuriolisBorealMod.MODID, "arboris_aura"));
-        setHardness(ArborisAuraConfig.getTrunkHardness());
-        setResistance(ArborisAuraConfig.getTrunkResistance());
         setSoundType(SoundType.WOOD);
         setHarvestLevel("axe", 0);
         setDefaultState(blockState.getBaseState().withProperty(PHASE, 0));
@@ -114,7 +116,8 @@ public class ArborisAuraBlock extends Block {
         }
         return true;
     }
-        @Override
+
+    @Override
     public int getFlammability(IBlockAccess world, BlockPos pos, EnumFacing face) {
         return ArborisAuraConfig.getFireFlammability();
     }
@@ -126,11 +129,11 @@ public class ArborisAuraBlock extends Block {
 
     @Override
     public float getBlockHardness(IBlockState blockState, World worldIn, BlockPos pos) {
-    return ArborisAuraConfig.getTrunkHardness();
+        return ArborisAuraConfig.getTrunkHardness();
     }
 
     @Override
     public float getExplosionResistance(World world, BlockPos pos, @Nullable Entity exploder, Explosion explosion) {
-    return ArborisAuraConfig.getTrunkResistance();
+        return ArborisAuraConfig.getTrunkResistance();
     }
 }
