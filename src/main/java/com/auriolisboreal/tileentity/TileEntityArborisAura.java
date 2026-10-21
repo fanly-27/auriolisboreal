@@ -1,7 +1,9 @@
 package com.auriolisboreal.tileentity;
 
 import com.auriolisboreal.ArborisAuraConfig;
+import com.auriolisboreal.ModBlocks;
 import com.auriolisboreal.blocks.ArborisAuraBlock;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -13,6 +15,11 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
     private static final String TAG_NUTRITION = "nutrition";
     private static final String TAG_PROGRESS_TICKS = "progressTicks";
     private static final String TAG_MALNOURISHED = "malnourished";
+
+    // Altura del tronco por fase (índice = fase)
+    private static final int[] HEIGHTS = {1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14};
+    // Radio de la copa por fase
+    private static final int[] RADII = {0, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4};
 
     private int phase;
     private double nutrition;
@@ -122,11 +129,70 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
             if (state.getBlock() instanceof ArborisAuraBlock) {
                 world.setBlockState(pos, state.withProperty(ArborisAuraBlock.PHASE, phase), 3);
             }
+            growShape();
         }
     }
 
-        @Override
+    // ---- Forma del árbol ----
+
+    private boolean canReplace(BlockPos p) {
+        IBlockState s = world.getBlockState(p);
+        return world.isAirBlock(p)
+                || s.getMaterial() == Material.LEAVES
+                || s.getBlock().isReplaceable(world, p);
+    }
+
+    private void placeTrunk(BlockPos p) {
+        if (canReplace(p)) {
+            world.setBlockState(p, ModBlocks.arboris_aura_trunk.getDefaultState(), 3);
+        }
+    }
+
+    private void placeLeaf(BlockPos p) {
+        if (world.isAirBlock(p) || world.getBlockState(p).getBlock().isReplaceable(world, p)) {
+            world.setBlockState(p, ModBlocks.arboris_aura_leaves.getDefaultState(), 3);
+        }
+    }
+
+    private void growShape() {
+        int h = HEIGHTS[phase];
+        int r = RADII[phase];
+        BlockPos base = getPos();
+
+        // Tronco central (el bloque base queda en y+0)
+        for (int y = 1; y < h; y++) {
+            placeTrunk(base.up(y));
+        }
+
+        // Tronco 2x2 en fases 9 y 10
+        if (phase >= 9) {
+            for (int y = 0; y < h; y++) {
+                placeTrunk(base.add(1, y, 0));
+                placeTrunk(base.add(0, y, 1));
+                placeTrunk(base.add(1, y, 1));
+            }
+        }
+
+        // Copa estilo roble oscuro: ancha y achatada
+        int cx = base.getX();
+        int cz = base.getZ();
+        int extra = phase >= 9 ? 1 : 0; // la copa se centra en el 2x2
+        for (int dy = -1; dy <= 2; dy++) {
+            int layerR = (dy == 2) ? Math.max(1, r - 2) : (dy == 1 ? r - 1 : r);
+            for (int dx = -layerR; dx <= layerR + extra; dx++) {
+                for (int dz = -layerR; dz <= layerR + extra; dz++) {
+                    // Recortar esquinas
+                    if (Math.abs(dx) == layerR && Math.abs(dz) == layerR && layerR > 1) {
+                        continue;
+                    }
+                    placeLeaf(new BlockPos(cx + dx, base.getY() + h + dy, cz + dz));
+                }
+            }
+        }
+    }
+
+    @Override
     public boolean shouldRefresh(net.minecraft.world.World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
         return oldState.getBlock() != newState.getBlock();
     }
-}
+                                           }
