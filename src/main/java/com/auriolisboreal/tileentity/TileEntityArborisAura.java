@@ -1,10 +1,12 @@
 package com.auriolisboreal.tileentity;
 
 import com.auriolisboreal.ArborisAuraConfig;
+import com.auriolisboreal.MicroBiome;
 import com.auriolisboreal.ModBlocks;
 import com.auriolisboreal.blocks.ArborisAuraBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
@@ -15,6 +17,10 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
     private static final String TAG_NUTRITION = "nutrition";
     private static final String TAG_PROGRESS_TICKS = "progressTicks";
     private static final String TAG_MALNOURISHED = "malnourished";
+    private static final String TAG_OWNER_UUID = "ownerUuid";
+    private static final String TAG_OWNER_NAME = "ownerName";
+    private static final String TAG_BIOME_RADIUS = "biomeRadius";
+    private static final String TAG_BIOME_INDEX = "biomeIndex";
 
     // Altura del tronco por fase (índice = fase)
     private static final int[] HEIGHTS = {1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14};
@@ -25,10 +31,20 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
     private double nutrition;
     private long progressTicks;
     private boolean malnourished;
+    private String ownerUuid = "";
+    private String ownerName = "";
+    private int biomeRadius;
+    private int biomeIndex;
 
     @Override
     public void update() {
-        if (world == null || world.isRemote || world.getTotalWorldTime() % 20L != 0L || phase >= 10) {
+        if (world == null || world.isRemote || world.getTotalWorldTime() % 20L != 0L) {
+            return;
+        }
+
+        processMicroBiome();
+
+        if (phase >= 10) {
             return;
         }
 
@@ -92,6 +108,32 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
         return phase >= 10 ? 0L : 24L * (phase + 1);
     }
 
+    // ---- Dueño ----
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public String getOwnerUuid() {
+        return ownerUuid;
+    }
+
+    public void setOwner(EntityPlayer player) {
+        ownerUuid = player.getUniqueID().toString();
+        ownerName = player.getName();
+        markDirty();
+    }
+
+    /** Lo llama el brote al convertirse en árbol: guarda el dueño y pasa de la fase 0 a la 1. */
+    public void startFromSapling(String uuid, String name) {
+        ownerUuid = uuid == null ? "" : uuid;
+        ownerName = name == null ? "" : name;
+        if (phase == 0) {
+            advancePhase();
+        }
+        markDirty();
+    }
+
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
@@ -99,6 +141,10 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
         compound.setDouble(TAG_NUTRITION, nutrition);
         compound.setLong(TAG_PROGRESS_TICKS, progressTicks);
         compound.setBoolean(TAG_MALNOURISHED, malnourished);
+        compound.setString(TAG_OWNER_UUID, ownerUuid);
+        compound.setString(TAG_OWNER_NAME, ownerName);
+        compound.setInteger(TAG_BIOME_RADIUS, biomeRadius);
+        compound.setInteger(TAG_BIOME_INDEX, biomeIndex);
         return compound;
     }
 
@@ -116,6 +162,10 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
         }
         progressTicks = Math.max(0L, compound.getLong(TAG_PROGRESS_TICKS));
         malnourished = compound.getBoolean(TAG_MALNOURISHED);
+        ownerUuid = compound.getString(TAG_OWNER_UUID);
+        ownerName = compound.getString(TAG_OWNER_NAME);
+        biomeRadius = Math.max(0, compound.getInteger(TAG_BIOME_RADIUS));
+        biomeIndex = Math.max(0, compound.getInteger(TAG_BIOME_INDEX));
     }
 
     private void advancePhase() {
@@ -130,7 +180,43 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
                 world.setBlockState(pos, state.withProperty(ArborisAuraBlock.PHASE, phase), 3);
             }
             growShape();
+            biomeRadius = ArborisAuraConfig.getBiomeRadius(phase);
+            biomeIndex = 0;
         }
+    }
+
+    // ---- Micro-bioma ----
+
+    /** Convierte el suelo poco a poco (columnas por segundo según la config) para no trabar el juego. */
+    private void processMicroBiome() {
+        if (biomeRadius <= 0) {
+            return;
+        }
+        int side = biomeRadius * 2 + 1;
+        int total = side * side;
+        if (biomeIndex >= total) {
+            return;
+        }
+
+        int budget = ArborisAuraConfig.getColumnsPerStep();
+        int r2 = biomeRadius * biomeRadius;
+        BlockPos base = getPos();
+        while (budget > 0 && biomeIndex < total) {
+            int dx = biomeIndex % side - biomeRadius;
+            int dz = biomeIndex / side - biomeRadius;
+            if (dx * dx + dz * dz > r2) {
+                biomeIndex++;
+                continue;
+            }
+            BlockPos column = new BlockPos(base.getX() + dx, base.getY(), base.getZ() + dz);
+            if (!world.isBlockLoaded(column)) {
+                break;
+            }
+            MicroBiome.convertColumn(world, column.getX(), base.getY(), column.getZ());
+            biomeIndex++;
+            budget--;
+        }
+        markDirty();
     }
 
     // ---- Forma del árbol ----
@@ -154,10 +240,29 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
         }
     }
 
+    /** Borra las hojas de la copa anterior para que no queden flotando al crecer. */
+    private void clearOldLeaves() {
+        BlockPos base = getPos();
+        int reach = 7;
+        int top = HEIGHTS[10] + 4;
+        for (int dx = -reach; dx <= reach; dx++) {
+            for (int dz = -reach; dz <= reach; dz++) {
+                for (int y = 0; y <= top; y++) {
+                    BlockPos p = base.add(dx, y, dz);
+                    if (world.getBlockState(p).getBlock() == ModBlocks.arboris_aura_leaves) {
+                        world.setBlockToAir(p);
+                    }
+                }
+            }
+        }
+    }
+
     private void growShape() {
         int h = HEIGHTS[phase];
         int r = RADII[phase];
         BlockPos base = getPos();
+
+        clearOldLeaves();
 
         // Tronco central (el bloque base queda en y+0)
         for (int y = 1; y < h; y++) {
@@ -195,4 +300,4 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
     public boolean shouldRefresh(net.minecraft.world.World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
         return oldState.getBlock() != newState.getBlock();
     }
-                                           }
+}
