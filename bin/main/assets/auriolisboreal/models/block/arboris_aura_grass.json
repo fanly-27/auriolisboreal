@@ -1,0 +1,18 @@
+{
+  "parent": "block/block",
+  "textures": {"particle":"blocks/dirt","dirt":"blocks/dirt","top":"blocks/grass_top","overlay":"blocks/grass_side_overlay"},
+  "elements": [
+    {"from":[0,0,0],"to":[16,16,16],"faces":{
+      "down":{"uv":[0,0,16,16],"texture":"#dirt","cullface":"down"},
+      "up":{"uv":[0,0,16,16],"texture":"#top","cullface":"up","tintindex":0},
+      "north":{"uv":[0,0,16,16],"texture":"#dirt","cullface":"north"},
+      "south":{"uv":[0,0,16,16],"texture":"#dirt","cullface":"south"},
+      "west":{"uv":[0,0,16,16],"texture":"#dirt","cullface":"west"},
+      "east":{"uv":[0,0,16,16],"texture":"#dirt","cullface":"east"}}},
+    {"from":[-0.01,0,-0.01],"to":[16.01,16,16.01],"faces":{
+      "north":{"uv":[0,0,16,16],"texture":"#overlay","tintindex":0},
+      "south":{"uv":[0,0,16,16],"texture":"#overlay","tintindex":0},
+      "west":{"uv":[0,0,16,16],"texture":"#overlay","tintindex":0},
+      "east":{"uv":[0,0,16,16],"texture":"#overlay","tintindex":0}}}
+  ]
+}
