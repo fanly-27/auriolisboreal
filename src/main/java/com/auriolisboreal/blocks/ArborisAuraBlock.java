@@ -29,8 +29,8 @@ public class ArborisAuraBlock extends Block {
         super(Material.WOOD);
         setTranslationKey("arboris_aura");
         setRegistryName(new ResourceLocation(AuriolisBorealMod.MODID, "arboris_aura"));
-        setHardness(2.0F);
-        setResistance(5.0F);
+        setHardness(ArborisAuraConfig.getTrunkHardness());
+        setResistance(ArborisAuraConfig.getTrunkResistance());
         setSoundType(SoundType.WOOD);
         setHarvestLevel("axe", 0);
         setDefaultState(blockState.getBaseState().withProperty(PHASE, 0));
