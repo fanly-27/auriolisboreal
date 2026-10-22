@@ -269,19 +269,27 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
             placeTrunk(base.up(y));
         }
 
-        // Tronco 2x2 en fases 9 y 10
-        if (phase >= 9) {
-            for (int y = 0; y < h; y++) {
-                placeTrunk(base.add(1, y, 0));
-                placeTrunk(base.add(0, y, 1));
-                placeTrunk(base.add(1, y, 1));
+        // Grosor del tronco: fases 1-4 = 1x1, fases 5-9 = 2x2, fase 10 = 3x3 (centrado en el bloque central)
+        int width = phase >= 10 ? 3 : (phase >= 5 ? 2 : 1);
+        if (width > 1) {
+            int from = width == 3 ? -1 : 0;
+            int to = 1;
+            for (int tx = from; tx <= to; tx++) {
+                for (int tz = from; tz <= to; tz++) {
+                    if (tx == 0 && tz == 0) {
+                        continue;
+                    }
+                    for (int y = 0; y < h; y++) {
+                        placeTrunk(base.add(tx, y, tz));
+                    }
+                }
             }
         }
 
         // Copa estilo roble oscuro: ancha y achatada
         int cx = base.getX();
         int cz = base.getZ();
-        int extra = phase >= 9 ? 1 : 0; // la copa se centra en el 2x2
+        int extra = width == 2 ? 1 : 0; // con tronco 2x2 la copa se centra en el cuadrado
         for (int dy = -1; dy <= 2; dy++) {
             int layerR = (dy == 2) ? Math.max(1, r - 2) : (dy == 1 ? r - 1 : r);
             for (int dx = -layerR; dx <= layerR + extra; dx++) {
