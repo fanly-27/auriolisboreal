@@ -1,1 +1,1 @@
-{"parent":"auriolisboreal:block/aura_cross","textures":{"particle":"blocks/tallgrass","cross":"blocks/tallgrass"}}
+{"parent":"block/tinted_cross","textures":{"particle":"blocks/tallgrass","cross":"blocks/tallgrass"}}
