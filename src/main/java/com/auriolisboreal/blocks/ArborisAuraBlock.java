@@ -21,7 +21,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -97,10 +96,9 @@ public class ArborisAuraBlock extends Block {
             float hitZ
     ) {
         ItemStack heldItem = player.getHeldItem(hand);
-        boolean debugStick = heldItem.getItem() == Items.STICK;
         boolean boneMeal = heldItem.getItem() == Items.DYE && heldItem.getMetadata() == 15;
         boolean totem = heldItem.getItem() == Items.TOTEM_OF_UNDYING;
-        if (!debugStick && !boneMeal && !totem) {
+        if (!boneMeal && !totem) {
             return false;
         }
 
@@ -116,25 +114,13 @@ public class ArborisAuraBlock extends Block {
         TileEntityArborisAura aura = (TileEntityArborisAura) tileEntity;
         if (totem) {
             String owner = aura.getOwnerName().isEmpty() ? "sin due\u00f1o" : aura.getOwnerName();
-            player.sendMessage(new TextComponentString(
-                    "Arboris Aura - fase " + aura.getPhase() + "/10 - due\u00f1o: " + owner));
-            return true;
-        }
-
-        if (debugStick) {
-            int phase = aura.getPhase();
             long targetTicks = aura.getTicksForNextPhase();
             String progress = targetTicks == 0
-                    ? "max"
+                    ? "m\u00e1xima"
                     : String.format(Locale.ROOT, "%d/%d ticks", aura.getProgressTicks(), targetTicks);
-            player.sendMessage(new TextComponentTranslation(
-                    "message.auriolisboreal.arboris_aura.debug",
-                    phase,
-                    String.format(Locale.ROOT, "%.1f", aura.getNutrition()),
-                    String.format(Locale.ROOT, "%.1f", aura.getNutritionCapacity()),
-                    progress,
-                    aura.isMalnourished()
-            ));
+            player.sendMessage(new TextComponentString(
+                    "Arboris Aura - fase " + aura.getPhase() + "/10 - due\u00f1o: " + owner
+                            + " - progreso: " + progress));
             return true;
         }
 
