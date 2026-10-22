@@ -25,6 +25,7 @@ public class ModBlocks {
         arboris_aura = new ArborisAuraBlock();
         arboris_aura_trunk = new ArborisAuraTrunkBlock();
         arboris_aura_leaves = new ArborisAuraLeavesBlock();
+        arboris_aura_leaves.setLightLevel(ArborisAuraConfig.getLeavesLight() / 15.0F);
         arboris_aura_sapling = new ArborisAuraSaplingBlock();
         arboris_aura_grass = new ArborisAuraGrassBlock();
         arboris_aura_tallgrass = new ArborisAuraTallGrassBlock();
