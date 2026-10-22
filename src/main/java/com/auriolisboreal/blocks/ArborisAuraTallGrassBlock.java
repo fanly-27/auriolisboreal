@@ -2,14 +2,18 @@ package com.auriolisboreal.blocks;
 
 import com.auriolisboreal.ArborisAuraConfig;
 import com.auriolisboreal.AuriolisBorealMod;
+import com.auriolisboreal.MicroBiome;
 import com.auriolisboreal.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -39,6 +43,21 @@ public class ArborisAuraTallGrassBlock extends BlockBush {
     @Override
     public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
         return ArborisAuraConfig.getTallGrassLight();
+    }
+
+    @Override
+    public boolean onBlockActivated(
+            World world,
+            BlockPos pos,
+            IBlockState state,
+            EntityPlayer player,
+            EnumHand hand,
+            EnumFacing facing,
+            float hitX,
+            float hitY,
+            float hitZ
+    ) {
+        return MicroBiome.interact(world, pos, player, hand);
     }
 
     @Override
