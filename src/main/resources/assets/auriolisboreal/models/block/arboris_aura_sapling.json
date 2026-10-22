@@ -1,1 +1,1 @@
-{"parent":"auriolisboreal:block/aura_cross","textures":{"particle":"blocks/sapling_roofed_oak","cross":"blocks/sapling_roofed_oak"}}
+{"parent":"block/cross","textures":{"particle":"auriolisboreal:blocks/arboris_aura_sapling","cross":"auriolisboreal:blocks/arboris_aura_sapling"}}
