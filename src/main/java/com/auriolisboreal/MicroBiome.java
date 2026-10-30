@@ -2,7 +2,9 @@ package com.auriolisboreal;
 
 import com.auriolisboreal.tileentity.TileEntityArborisAura;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockCrops;
 import net.minecraft.block.BlockDirt;
+import net.minecraft.block.BlockFlower;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,45 +23,99 @@ public final class MicroBiome {
     private MicroBiome() {
     }
 
-    /** Convierte una columna (x, z) del micro-bioma: hierba/tierra -> hierba Aura y, opcionalmente, pasto en cruz. */
-    public static void convertColumn(World world, int x, int baseY, int z) {
-        BlockPos ground = null;
-        boolean justConverted = false;
+    private static boolean isSoil(IBlockState s) {
+        Block b = s.getBlock();
+        return b == ModBlocks.arboris_aura_grass
+                || b == Blocks.GRASS
+                || (b == Blocks.DIRT && s.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT);
+    }
 
-        for (int y = baseY + 2; y >= baseY - 3; y--) {
-            BlockPos p = new BlockPos(x, y, z);
+    private static boolean isOwnBlock(Block b) {
+        return b == ModBlocks.arboris_aura
+                || b == ModBlocks.arboris_aura_trunk
+                || b == ModBlocks.arboris_aura_leaves
+                || b == ModBlocks.arboris_aura_sapling
+                || b == ModBlocks.arboris_aura_grass
+                || b == ModBlocks.arboris_aura_tallgrass;
+    }
+
+    /** Nutrición que da una vegetación que no es del árbol (0 = no es vegetación). */
+    private static double nutritionOf(World world, BlockPos p, IBlockState s) {
+        Block b = s.getBlock();
+        Material m = s.getMaterial();
+        if (m == Material.LEAVES) {
+            return ArborisAuraConfig.getNutritionLeaves();
+        }
+        if (b.isWood(world, p)) {
+            return ArborisAuraConfig.getNutritionLog();
+        }
+        if (b instanceof BlockCrops) {
+            return ArborisAuraConfig.getNutritionCrop();
+        }
+        if (b instanceof BlockFlower) {
+            return ArborisAuraConfig.getNutritionFlower();
+        }
+        if (m == Material.PLANTS || m == Material.VINE || m == Material.CACTUS || m == Material.GOURD) {
+            return ArborisAuraConfig.getNutritionPlant();
+        }
+        return 0.0;
+    }
+
+    /** Quita la vegetación ajena sobre el suelo de la columna y devuelve la nutrición ganada. */
+    private static double absorbVegetation(World world, BlockPos ground) {
+        double total = 0.0;
+        int top = Math.min(255, ground.getY() + ArborisAuraConfig.getAbsorbHeight());
+        for (int y = ground.getY() + 1; y <= top; y++) {
+            BlockPos p = new BlockPos(ground.getX(), y, ground.getZ());
             IBlockState s = world.getBlockState(p);
             Block b = s.getBlock();
-            if (b == ModBlocks.arboris_aura_grass) {
-                ground = p;
-                break;
+            if (b == Blocks.AIR || isOwnBlock(b)) {
+                continue;
             }
-            boolean soil = b == Blocks.GRASS
-                    || (b == Blocks.DIRT && s.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT);
-            if (soil && !world.getBlockState(p.up()).isOpaqueCube()) {
-                world.setBlockState(p, ModBlocks.arboris_aura_grass.getDefaultState(), 2);
-                ground = p;
-                justConverted = true;
+            double value = nutritionOf(world, p, s);
+            if (value > 0.0) {
+                world.setBlockState(p, Blocks.AIR.getDefaultState(), 2);
+                total += value;
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Procesa una columna (x, z) del micro-bioma: absorbe la vegetación ajena (da nutrición al árbol),
+     * convierte pasto/tierra normal en hierba Aura y, al convertir, a veces pone pasto en cruz.
+     */
+    public static void processColumn(World world, TileEntityArborisAura aura, int x, int baseY, int z) {
+        int groundY = Integer.MIN_VALUE;
+        for (int y = baseY + 2; y >= baseY - 3; y--) {
+            if (isSoil(world.getBlockState(new BlockPos(x, y, z)))) {
+                groundY = y;
                 break;
             }
         }
-
-        if (ground == null || !justConverted) {
+        if (groundY == Integer.MIN_VALUE) {
             return;
+        }
+        BlockPos ground = new BlockPos(x, groundY, z);
+
+        if (ArborisAuraConfig.isRemovePlants()) {
+            double gained = absorbVegetation(world, ground);
+            if (gained > 0.0) {
+                aura.absorbNutrition(gained);
+            }
+        }
+
+        boolean justConverted = false;
+        IBlockState groundState = world.getBlockState(ground);
+        if (groundState.getBlock() != ModBlocks.arboris_aura_grass
+                && !world.getBlockState(ground.up()).isOpaqueCube()) {
+            world.setBlockState(ground, ModBlocks.arboris_aura_grass.getDefaultState(), 2);
+            justConverted = true;
         }
 
         BlockPos above = ground.up();
-        IBlockState aboveState = world.getBlockState(above);
-        Block aboveBlock = aboveState.getBlock();
-        Material material = aboveState.getMaterial();
-        boolean isPlant = (material == Material.PLANTS || material == Material.VINE)
-                && aboveBlock != ModBlocks.arboris_aura_tallgrass
-                && aboveBlock != ModBlocks.arboris_aura_sapling;
-        if (isPlant && ArborisAuraConfig.isRemovePlants()) {
-            world.setBlockToAir(above);
-        }
-
-        if (world.isAirBlock(above) && world.rand.nextInt(100) < ArborisAuraConfig.getPlantChancePercent()) {
+        if (justConverted && world.isAirBlock(above)
+                && world.rand.nextInt(100) < ArborisAuraConfig.getPlantChancePercent()) {
             world.setBlockState(above, ModBlocks.arboris_aura_tallgrass.getDefaultState(), 2);
         }
     }
