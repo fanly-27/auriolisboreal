@@ -30,6 +30,13 @@ public final class ArborisAuraConfig {
     private static boolean removePlants = true;
     private static int plantChancePercent = 12;
     private static int columnsPerStep = 30;
+    private static int rescanDelaySeconds = 10;
+    private static int absorbHeight = 24;
+    private static double nutritionPlant = 1.0;
+    private static double nutritionFlower = 2.0;
+    private static double nutritionCrop = 3.0;
+    private static double nutritionLog = 4.0;
+    private static double nutritionLeaves = 0.5;
     private static int saplingGrowthTicks = 600;
 
     private ArborisAuraConfig() {
@@ -58,11 +65,25 @@ public final class ArborisAuraConfig {
                 "Light emitted by the Aura grass block of the micro-biome (0-15).");
 
         removePlants = config.getBoolean("remove_plants", "microbiome", true,
-                "Remove vanilla plants (flowers, grass, crops) when the ground becomes Aura grass.");
+                "The micro-biome absorbs (removes) vegetation that is not its own: plants, crops, flowers, logs and leaves.");
         plantChancePercent = config.getInt("plant_chance_percent", "microbiome", 12, 0, 100,
                 "Chance (%) of an Aura tall grass appearing on each converted column.");
         columnsPerStep = config.getInt("columns_per_step", "microbiome", 30, 1, 1000,
-                "Columns converted per second while the micro-biome grows. Lower = less lag.");
+                "Columns processed per second while the micro-biome grows. Lower = less lag.");
+        rescanDelaySeconds = config.getInt("rescan_delay_seconds", "microbiome", 10, 1, 3600,
+                "Seconds to wait between full passes over the micro-biome (re-converts normal grass, absorbs new vegetation).");
+        absorbHeight = config.getInt("absorb_height", "microbiome", 24, 1, 64,
+                "How many blocks above the ground are checked for vegetation to absorb.");
+        nutritionPlant = config.get("microbiome", "nutrition_plant", 1.0,
+                "Nutrition gained by absorbing a small plant (grass, bush, mushroom).", 0.0, 1000.0).getDouble();
+        nutritionFlower = config.get("microbiome", "nutrition_flower", 2.0,
+                "Nutrition gained by absorbing a flower.", 0.0, 1000.0).getDouble();
+        nutritionCrop = config.get("microbiome", "nutrition_crop", 3.0,
+                "Nutrition gained by absorbing a crop.", 0.0, 1000.0).getDouble();
+        nutritionLog = config.get("microbiome", "nutrition_log", 4.0,
+                "Nutrition gained by absorbing a log.", 0.0, 1000.0).getDouble();
+        nutritionLeaves = config.get("microbiome", "nutrition_leaves", 0.5,
+                "Nutrition gained by absorbing a leaf block.", 0.0, 1000.0).getDouble();
         saplingGrowthTicks = config.getInt("growth_ticks", "sapling", 600, 20, 24000000,
                 "Ticks the sapling needs to become a tree. 24000 = one Minecraft day.");
 
@@ -175,6 +196,34 @@ public final class ArborisAuraConfig {
 
     public static int getColumnsPerStep() {
         return columnsPerStep;
+    }
+
+    public static int getRescanDelaySeconds() {
+        return rescanDelaySeconds;
+    }
+
+    public static int getAbsorbHeight() {
+        return absorbHeight;
+    }
+
+    public static double getNutritionPlant() {
+        return nutritionPlant;
+    }
+
+    public static double getNutritionFlower() {
+        return nutritionFlower;
+    }
+
+    public static double getNutritionCrop() {
+        return nutritionCrop;
+    }
+
+    public static double getNutritionLog() {
+        return nutritionLog;
+    }
+
+    public static double getNutritionLeaves() {
+        return nutritionLeaves;
     }
 
     public static int getSaplingGrowthTicks() {
