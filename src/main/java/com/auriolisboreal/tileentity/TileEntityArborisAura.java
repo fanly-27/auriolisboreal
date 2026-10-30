@@ -9,6 +9,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 
@@ -35,6 +36,7 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
     private String ownerName = "";
     private int biomeRadius;
     private int biomeIndex;
+    private int rescanWait; // no se guarda
 
     @Override
     public void update() {
@@ -42,6 +44,7 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
             return;
         }
 
+        syncBlockState();
         processMicroBiome();
 
         if (phase >= 10) {
@@ -63,7 +66,7 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
 
         progressTicks += 20L;
         if (progressTicks >= getTicksForNextPhase()) {
-            advancePhase();
+            advancePhase(true);
         }
         markDirty();
     }
@@ -82,6 +85,16 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
         malnourished = nutrition <= 0.0;
         markDirty();
         return true;
+    }
+
+    /** Nutrición que el árbol absorbe de la vegetación ajena del micro-bioma (lo que sobre se pierde). */
+    public void absorbNutrition(double amount) {
+        if (phase == 0 || amount <= 0.0 || Double.isNaN(amount) || Double.isInfinite(amount)) {
+            return;
+        }
+        nutrition = Math.min(getNutritionCapacity(), nutrition + amount);
+        malnourished = nutrition <= 0.0;
+        markDirty();
     }
 
     public int getPhase() {
@@ -124,12 +137,16 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
         markDirty();
     }
 
-    /** Lo llama el brote al convertirse en árbol: guarda el dueño y pasa de la fase 0 a la 1. */
+    /**
+     * Lo llama el brote al convertirse en árbol: guarda el dueño y pasa de la fase 0 a la 1.
+     * El estado del bloque NO se cambia aquí (en el mismo tick reemplazaría este TileEntity por uno vacío
+     * y se perdería el dueño); se sincroniza un segundo después en update().
+     */
     public void startFromSapling(String uuid, String name) {
         ownerUuid = uuid == null ? "" : uuid;
         ownerName = name == null ? "" : name;
         if (phase == 0) {
-            advancePhase();
+            advancePhase(false);
         }
         markDirty();
     }
@@ -168,26 +185,38 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
         biomeIndex = Math.max(0, compound.getInteger(TAG_BIOME_INDEX));
     }
 
-    private void advancePhase() {
+    private void advancePhase(boolean syncNow) {
         phase++;
         progressTicks = 0L;
         malnourished = phase > 0 && nutrition <= 0.0;
 
         if (world != null) {
-            BlockPos pos = getPos();
-            IBlockState state = world.getBlockState(pos);
-            if (state.getBlock() instanceof ArborisAuraBlock) {
-                world.setBlockState(pos, state.withProperty(ArborisAuraBlock.PHASE, phase), 3);
+            if (syncNow) {
+                syncBlockState();
             }
             growShape();
             biomeRadius = ArborisAuraConfig.getBiomeRadius(phase);
             biomeIndex = 0;
+            rescanWait = 0;
+        }
+    }
+
+    /** Hace que la fase del bloque coincida con la fase guardada en este TileEntity. */
+    private void syncBlockState() {
+        BlockPos pos = getPos();
+        IBlockState state = world.getBlockState(pos);
+        if (state.getBlock() instanceof ArborisAuraBlock
+                && state.getValue(ArborisAuraBlock.PHASE) != phase) {
+            world.setBlockState(pos, state.withProperty(ArborisAuraBlock.PHASE, phase), 3);
         }
     }
 
     // ---- Micro-bioma ----
 
-    /** Convierte el suelo poco a poco (columnas por segundo según la config) para no trabar el juego. */
+    /**
+     * Repasa el suelo poco a poco (columnas por segundo según la config) para no trabar el juego.
+     * Al terminar una pasada espera unos segundos y empieza otra: así regenera pasto normal y absorbe vegetación nueva.
+     */
     private void processMicroBiome() {
         if (biomeRadius <= 0) {
             return;
@@ -195,6 +224,11 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
         int side = biomeRadius * 2 + 1;
         int total = side * side;
         if (biomeIndex >= total) {
+            rescanWait++;
+            if (rescanWait >= ArborisAuraConfig.getRescanDelaySeconds()) {
+                rescanWait = 0;
+                biomeIndex = 0;
+            }
             return;
         }
 
@@ -212,7 +246,7 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
             if (!world.isBlockLoaded(column)) {
                 break;
             }
-            MicroBiome.convertColumn(world, column.getX(), base.getY(), column.getZ());
+            MicroBiome.processColumn(world, this, column.getX(), base.getY(), column.getZ());
             biomeIndex++;
             budget--;
         }
@@ -264,36 +298,45 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
 
         clearOldLeaves();
 
-        // Tronco central (el bloque base queda en y+0)
-        for (int y = 1; y < h; y++) {
-            placeTrunk(base.up(y));
+        // Tronco: fases 1-4 = 1 bloque, fases 5-9 = cruz de 5, fase 10 = diamante de 13.
+        // Cada distancia al centro es un bloque más baja (el tronco se afina hacia arriba).
+        int reach = phase >= 10 ? 2 : (phase >= 5 ? 1 : 0);
+        for (int dx = -reach; dx <= reach; dx++) {
+            for (int dz = -reach; dz <= reach; dz++) {
+                int dist = Math.abs(dx) + Math.abs(dz);
+                if (dist > reach) {
+                    continue;
+                }
+                int top = h - dist; // exclusivo
+                int from = dist == 0 ? 1 : 0; // el bloque central (y+0) es el núcleo
+                for (int y = from; y < top; y++) {
+                    placeTrunk(base.add(dx, y, dz));
+                }
+            }
         }
 
-        // Grosor del tronco: fases 1-4 = 1x1, fases 5-9 = 2x2, fase 10 = 3x3 (centrado en el bloque central)
-        int width = phase >= 10 ? 3 : (phase >= 5 ? 2 : 1);
-        if (width > 1) {
-            int from = width == 3 ? -1 : 0;
-            int to = 1;
-            for (int tx = from; tx <= to; tx++) {
-                for (int tz = from; tz <= to; tz++) {
-                    if (tx == 0 && tz == 0) {
-                        continue;
-                    }
-                    for (int y = 0; y < h; y++) {
-                        placeTrunk(base.add(tx, y, tz));
-                    }
+        // Raíces en la base y ramas en la punta (desde la fase 5)
+        if (phase >= 5) {
+            int rootLength = phase >= 10 ? 2 : 1;
+            int branchLength = reach + 2;
+            for (EnumFacing f : EnumFacing.HORIZONTALS) {
+                for (int i = 1; i <= rootLength; i++) {
+                    placeTrunk(base.offset(f, reach + i));
                 }
+                for (int i = 1; i <= branchLength; i++) {
+                    placeTrunk(base.offset(f, i).up(h - 2));
+                }
+                placeTrunk(base.offset(f, branchLength).up(h - 1));
             }
         }
 
         // Copa estilo roble oscuro: ancha y achatada
         int cx = base.getX();
         int cz = base.getZ();
-        int extra = width == 2 ? 1 : 0; // con tronco 2x2 la copa se centra en el cuadrado
         for (int dy = -1; dy <= 2; dy++) {
             int layerR = (dy == 2) ? Math.max(1, r - 2) : (dy == 1 ? r - 1 : r);
-            for (int dx = -layerR; dx <= layerR + extra; dx++) {
-                for (int dz = -layerR; dz <= layerR + extra; dz++) {
+            for (int dx = -layerR; dx <= layerR; dx++) {
+                for (int dz = -layerR; dz <= layerR; dz++) {
                     // Recortar esquinas
                     if (Math.abs(dx) == layerR && Math.abs(dz) == layerR && layerR > 1) {
                         continue;
@@ -308,4 +351,4 @@ public class TileEntityArborisAura extends TileEntity implements ITickable {
     public boolean shouldRefresh(net.minecraft.world.World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
         return oldState.getBlock() != newState.getBlock();
     }
-}
+                    }
